@@ -8,17 +8,14 @@ export const USER_KEY = '@pockettrack_user';
 
 // Determine default API base URL
 const getDefaultBaseUrl = () => {
-  if (Platform.OS === 'web') {
-    if (typeof window !== 'undefined' && window.location?.hostname) {
-      return `http://${window.location.hostname}:8000/api`;
-    }
-    return 'http://localhost:8000/api';
-  }
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.hostname) {
+    return `http://${window.location.hostname}:8000/api`;
+  }
   if (Platform.OS === 'android') {
-    return 'http://192.168.1.11:8000/api';
+    return 'http://10.0.2.2:8000/api';
   }
   return 'http://localhost:8000/api';
 };

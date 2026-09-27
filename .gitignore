@@ -1,6 +1,9 @@
-cleart# Environment files
+# Environment files
 .env
-.env*.local
+.env.*
+*.env
+backend/.env
+frontend/.env
 
 # Node
 node_modules/

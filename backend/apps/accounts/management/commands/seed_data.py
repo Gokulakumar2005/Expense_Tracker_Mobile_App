@@ -1,3 +1,4 @@
+import os
 from decimal import Decimal
 from datetime import date, timedelta
 from django.core.management.base import BaseCommand
@@ -11,8 +12,8 @@ class Command(BaseCommand):
     help = 'Seeds sample user, transactions, and budgets for evaluation and testing.'
 
     def handle(self, *args, **options):
-        email = 'demo@pockettrack.com'
-        password = 'PocketTrack@2026'
+        email = os.getenv('DEMO_USER_EMAIL', 'demo@pockettrack.com')
+        password = os.getenv('DEMO_USER_PASSWORD', 'PocketTrack@2026')
 
         user, created = User.objects.get_or_create(
             email=email,

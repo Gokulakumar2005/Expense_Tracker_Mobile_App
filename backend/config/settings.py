@@ -18,8 +18,9 @@ if backend_env_path.exists():
 elif root_env_path.exists():
     dotenv.load_dotenv(root_env_path)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-pockettrack-default-dev-key')
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is required and must not be empty.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't', 'yes')
@@ -188,7 +189,11 @@ SIMPLE_JWT = {
 CORS_ALLOW_CREDENTIALS = True
 cors_origins_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
 if cors_origins_env:
-    CORS_ALLOWED_ORIGINS = [orig.strip() for orig in cors_origins_env.split(',') if orig.strip()]
+    raw_origins = [orig.strip() for orig in cors_origins_env.split(',') if orig.strip()]
+    if '*' in raw_origins:
+        CORS_ALLOW_ALL_ORIGINS = True
+        raw_origins = [orig for orig in raw_origins if orig != '*']
+    CORS_ALLOWED_ORIGINS = raw_origins
 else:
     CORS_ALLOWED_ORIGINS = [
         'http://localhost:8081',
@@ -200,3 +205,6 @@ else:
 # During development, allow all origins to facilitate Expo / physical devices / emulators
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+
+# Support HTTPS reverse proxy headers on Render / Heroku / PaaS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
