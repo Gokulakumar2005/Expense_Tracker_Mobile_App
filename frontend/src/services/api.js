@@ -6,7 +6,7 @@ export const ACCESS_TOKEN_KEY = '@pockettrack_access_token';
 export const REFRESH_TOKEN_KEY = '@pockettrack_refresh_token';
 export const USER_KEY = '@pockettrack_user';
 
-// Determine default API base URL
+// Determine default API base URL strictly from environment variables
 const getDefaultBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
