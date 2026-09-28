@@ -1,4 +1,5 @@
 export const EXPENSE_CATEGORIES = [
+  { id: 'Monthly Expenses', name: 'Monthly Expenses', icon: 'wallet-outline', color: '#2563EB' },
   { id: 'Food', name: 'Food', icon: 'restaurant-outline', color: '#F97316' },
   { id: 'Transport', name: 'Transport', icon: 'car-outline', color: '#0EA5E9' },
   { id: 'Shopping', name: 'Shopping', icon: 'cart-outline', color: '#EC4899' },

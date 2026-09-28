@@ -1,6 +1,7 @@
 import { query } from '../config/db.js';
 
 const EXPENSE_CATEGORIES = [
+  'Monthly Expenses',
   'Food',
   'Transport',
   'Shopping',

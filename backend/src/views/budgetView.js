@@ -23,8 +23,21 @@ function renderBudget(budget, spentAmount) {
   };
 }
 
-function renderBudgetSummary({ month, year, totalBudget, totalSpent, budgetCount, exceededCount, warningCount }) {
-  const remaining = totalBudget - totalSpent;
+function renderBudgetSummary({
+  month,
+  year,
+  totalBudget,
+  totalSpent,
+  budgetCount,
+  exceededCount,
+  warningCount,
+  totalIncome = 0,
+  totalExpenses = 0,
+  remainingBudget = null,
+  savings = null,
+}) {
+  const remaining = remainingBudget !== null ? remainingBudget : totalBudget - totalSpent;
+  const calculatedSavings = savings !== null ? savings : totalIncome - totalExpenses;
   const percentageUsed = totalBudget > 0
     ? Math.round((totalSpent / totalBudget) * 1000) / 10
     : 0;
@@ -34,7 +47,10 @@ function renderBudgetSummary({ month, year, totalBudget, totalSpent, budgetCount
     year,
     total_budget: parseFloat(totalBudget.toFixed(2)),
     total_spent: parseFloat(totalSpent.toFixed(2)),
+    total_income: parseFloat(totalIncome.toFixed(2)),
+    total_expenses: parseFloat(totalExpenses.toFixed(2)),
     remaining_budget: parseFloat(remaining.toFixed(2)),
+    savings: parseFloat(calculatedSavings.toFixed(2)),
     percentage_used: percentageUsed,
     budget_count: budgetCount,
     exceeded_count: exceededCount,

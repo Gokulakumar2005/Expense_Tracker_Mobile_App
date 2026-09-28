@@ -17,15 +17,16 @@ import {
   clearTransactionError,
 } from '../../redux/slices/transactionSlice';
 import { fetchDashboard } from '../../redux/slices/dashboardSlice';
-import { fetchBudgetSummary } from '../../redux/slices/budgetSlice';
+import { fetchBudgetSummary, fetchBudgets } from '../../redux/slices/budgetSlice';
+import { fetchMonthlySummary } from '../../redux/slices/monthlySlice';
 import { validateTransaction } from '../../utils/validation';
 import { getTodayDateString } from '../../utils/date';
-import { showNotice } from '../../utils/alert';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../constants/categories';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import Header from '../../components/Header';
 import ErrorMessage from '../../components/ErrorMessage';
+import Toast from '../../components/Toast';
 import COLORS from '../../constants/colors';
 
 export const AddTransactionScreen = ({ navigation, route }) => {
@@ -44,6 +45,8 @@ export const AddTransactionScreen = ({ navigation, route }) => {
   );
   const [description, setDescription] = useState(existingTx?.description || '');
   const [formErrors, setFormErrors] = useState({});
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     if (!existingTx) {
@@ -93,19 +96,24 @@ export const AddTransactionScreen = ({ navigation, route }) => {
     if (!resultAction.error) {
       dispatch(fetchDashboard());
       dispatch(fetchBudgetSummary());
+      dispatch(fetchMonthlySummary());
+      dispatch(fetchBudgets());
 
-      showNotice({
-        title: 'Success',
-        message: isEditing
-          ? 'Transaction updated successfully!'
-          : 'Transaction added successfully!',
-        onOk: () => navigation.goBack(),
-      });
+      setToastMessage(isEditing ? '✓ Transaction updated successfully' : '✓ Transaction added successfully');
+      setToastVisible(true);
+      setTimeout(() => {
+        navigation.goBack();
+      }, 500);
     }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }} className="flex-1 bg-slate-50">
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
+        onDismiss={() => setToastVisible(false)}
+      />
       <Header
         title={isEditing ? 'Edit Transaction' : 'Add Transaction'}
         subtitle="Record your income or expense"

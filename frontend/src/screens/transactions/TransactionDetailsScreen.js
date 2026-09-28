@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,14 +14,16 @@ import {
   clearSelectedTransaction,
 } from '../../redux/slices/transactionSlice';
 import { fetchDashboard } from '../../redux/slices/dashboardSlice';
-import { fetchBudgetSummary } from '../../redux/slices/budgetSlice';
+import { fetchBudgetSummary, fetchBudgets } from '../../redux/slices/budgetSlice';
+import { fetchMonthlySummary } from '../../redux/slices/monthlySlice';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/date';
-import { confirmDialog } from '../../utils/alert';
 import { getCategoryMeta } from '../../constants/categories';
 import Header from '../../components/Header';
 import Loading from '../../components/Loading';
 import Button from '../../components/Button';
+import ConfirmModal from '../../components/ConfirmModal';
+import Toast from '../../components/Toast';
 import COLORS from '../../constants/colors';
 
 export const TransactionDetailsScreen = ({ navigation, route }) => {
@@ -31,6 +33,17 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
     (state) => state.transactions
   );
 
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
+
+  const showToast = (msg, type = 'success') => {
+    setToastMessage(msg);
+    setToastType(type);
+    setToastVisible(true);
+  };
+
   useEffect(() => {
     dispatch(fetchTransactionDetail(id));
     return () => {
@@ -38,21 +51,21 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
     };
   }, [dispatch, id]);
 
-  const handleDelete = () => {
-    confirmDialog({
-      title: 'Delete Transaction',
-      message: 'Are you sure you want to permanently delete this transaction? This action cannot be undone.',
-      confirmText: 'Delete',
-      isDestructive: true,
-      onConfirm: async () => {
-        const res = await dispatch(deleteTransaction(id));
-        if (!res.error) {
-          dispatch(fetchDashboard());
-          dispatch(fetchBudgetSummary());
-          navigation.goBack();
-        }
-      },
-    });
+  const handleDeleteConfirm = async () => {
+    const res = await dispatch(deleteTransaction(id));
+    setDeleteModalVisible(false);
+    if (!res.error) {
+      dispatch(fetchDashboard());
+      dispatch(fetchBudgetSummary());
+      dispatch(fetchBudgets());
+      dispatch(fetchMonthlySummary());
+      showToast('✓ Transaction deleted successfully');
+      setTimeout(() => {
+        navigation.goBack();
+      }, 500);
+    } else {
+      showToast('Failed to delete transaction.', 'error');
+    }
   };
 
   const handleEdit = () => {
@@ -75,6 +88,13 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
+        type={toastType}
+        onDismiss={() => setToastVisible(false)}
+      />
+
       <Header
         title="Transaction Details"
         showBack
@@ -230,7 +250,7 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
 
           <Button
             title="Delete"
-            onPress={handleDelete}
+            onPress={() => setDeleteModalVisible(true)}
             variant="danger"
             isLoading={isSubmitting}
             icon={<Ionicons name="trash-outline" size={18} color={COLORS.white} />}
@@ -238,6 +258,19 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
           />
         </View>
       </ScrollView>
+
+      {/* Delete Confirmation Modal (Requirement 17) */}
+      <ConfirmModal
+        visible={deleteModalVisible}
+        title="Delete Transaction?"
+        message="This transaction will be permanently removed."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive
+        isLoading={isSubmitting}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };

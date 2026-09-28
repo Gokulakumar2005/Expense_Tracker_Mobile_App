@@ -201,6 +201,28 @@ async function testApi() {
       throw new Error(`Reports failed: ${JSON.stringify(reports)}`);
     }
 
+    // Test monthly report endpoint
+    const monthlyReport = await makeRequest(server, 'GET', '/api/reports/monthly/?month=9&year=2026', null, accessToken);
+    if (monthlyReport.status !== 200 || typeof monthlyReport.body.total_budget !== 'number') {
+      throw new Error(`Monthly report failed: ${JSON.stringify(monthlyReport)}`);
+    }
+
+    // Test PDF download endpoint
+    const pdfReport = await makeRequest(server, 'GET', '/api/reports/monthly/pdf?month=9&year=2026', null, accessToken);
+    if (pdfReport.status !== 200) {
+      throw new Error(`PDF report failed: ${JSON.stringify(pdfReport)}`);
+    }
+    const pdfStr = typeof pdfReport.body === 'string' ? pdfReport.body : pdfReport.body.toString();
+    if (!pdfStr.startsWith('%PDF')) {
+      throw new Error('PDF output does not start with %PDF signature');
+    }
+
+    // Test PDF base64 format for mobile apps
+    const pdfBase64 = await makeRequest(server, 'GET', '/api/reports/monthly/pdf?month=9&year=2026&format=base64', null, accessToken);
+    if (pdfBase64.status !== 200 || !pdfBase64.body.base64) {
+      throw new Error(`PDF base64 failed: ${JSON.stringify(pdfBase64)}`);
+    }
+
     const unauth = await makeRequest(server, 'GET', '/api/transactions/', null, null);
     if (unauth.status !== 401) {
       throw new Error(`Unauthenticated should return 401: ${unauth.status}`);

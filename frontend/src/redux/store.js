@@ -3,6 +3,7 @@ import authReducer, { forceLogout } from './slices/authSlice';
 import transactionReducer from './slices/transactionSlice';
 import budgetReducer from './slices/budgetSlice';
 import dashboardReducer from './slices/dashboardSlice';
+import monthlyReducer from './slices/monthlySlice';
 import { setOnUnauthorizedCallback } from '../services/api';
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     transactions: transactionReducer,
     budgets: budgetReducer,
     dashboard: dashboardReducer,
+    monthly: monthlyReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

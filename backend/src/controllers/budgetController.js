@@ -1,3 +1,4 @@
+import transactionModel from '../models/transactionModel.js';
 import budgetModel from '../models/budgetModel.js';
 import { paginate } from '../middlewares/paginationMiddleware.js';
 import { validationError } from '../middlewares/errorMiddleware.js';
@@ -59,6 +60,8 @@ async function getBudgetSummary(req, res) {
   const year = req.query.year ? parseInt(req.query.year, 10) : now.getFullYear();
 
   const budgets = await budgetModel.getMonthlyBudgets(userId, month, year);
+  const monthlyIncome = await transactionModel.getMonthlyByType(userId, 'INCOME', month, year);
+  const monthlyExpense = await transactionModel.getMonthlyByType(userId, 'EXPENSE', month, year);
 
   let totalBudget = 0;
   let totalSpent = 0;
@@ -80,6 +83,9 @@ async function getBudgetSummary(req, res) {
     }
   }
 
+  const remainingBudget = totalBudget - totalSpent;
+  const savings = monthlyIncome - monthlyExpense;
+
   return res.status(200).json(
     renderBudgetSummary({
       month,
@@ -89,6 +95,10 @@ async function getBudgetSummary(req, res) {
       budgetCount: budgets.length,
       exceededCount,
       warningCount,
+      totalIncome: monthlyIncome,
+      totalExpenses: monthlyExpense,
+      remainingBudget,
+      savings,
     })
   );
 }
