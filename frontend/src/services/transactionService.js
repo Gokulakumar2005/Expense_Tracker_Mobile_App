@@ -3,7 +3,6 @@ import api from './api';
 export const transactionService = {
   async getTransactions(params = {}) {
     const response = await api.get('/transactions/', { params });
-    // Handles both paginated { count, results } and plain list responses
     return response.data;
   },
 

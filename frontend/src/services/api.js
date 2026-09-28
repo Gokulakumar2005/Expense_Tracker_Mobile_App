@@ -6,7 +6,6 @@ export const ACCESS_TOKEN_KEY = '@pockettrack_access_token';
 export const REFRESH_TOKEN_KEY = '@pockettrack_refresh_token';
 export const USER_KEY = '@pockettrack_user';
 
-// Determine default API base URL strictly from environment variables
 const getDefaultBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
@@ -20,10 +19,11 @@ const getDefaultBaseUrl = () => {
   return 'http://localhost:8000/api';
 };
 
-export const API_BASE_URL = getDefaultBaseUrl();
+export const BASE_AXIOS_URL = getDefaultBaseUrl();
+export const API_BASE_URL = BASE_AXIOS_URL;
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: BASE_AXIOS_URL,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -45,13 +45,11 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Logout callback registry for Redux synchronization
 let onUnauthorizedCallback = null;
 export const setOnUnauthorizedCallback = (callback) => {
   onUnauthorizedCallback = callback;
 };
 
-// Request Interceptor: Attach JWT Token
 api.interceptors.request.use(
   async (config) => {
     try {
@@ -67,15 +65,12 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401 & Automatic Refresh
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and not already retried
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Avoid infinite loop if refresh itself fails
       if (originalRequest.url?.includes('/auth/refresh/') || originalRequest.url?.includes('/auth/login/')) {
         return Promise.reject(error);
       }
@@ -100,7 +95,7 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh/`, {
+        const response = await axios.post(`${BASE_AXIOS_URL}/auth/refresh/`, {
           refresh: refreshToken,
         });
 
@@ -114,7 +109,6 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        // Clean up stored tokens on session expiration
         await AsyncStorage.multiRemove([ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, USER_KEY]);
         if (onUnauthorizedCallback) {
           onUnauthorizedCallback();

@@ -99,12 +99,12 @@ PocketTrack is a production-ready, full-stack personal finance and expense track
 - **Charts**: Custom responsive SVG / Bar visualizations
 
 ### Backend
-- **Language**: Python 3.12+ / 3.14+
-- **Framework**: Django 5.1+ & Django REST Framework (DRF)
-- **Authentication**: `djangorestframework-simplejwt` (JWT Auth)
-- **CORS**: `django-cors-headers`
-- **Environment**: `python-dotenv`
-- **Database Driver**: `psycopg` (v3 binary)
+- **Language**: Node.js (v18+)
+- **Architecture**: Model-View-Controller (MVC)
+- **Framework**: Express.js (v4.19+)
+- **Authentication**: JWT (JSON Web Tokens) with PBKDF2 password compatibility
+- **Security**: Helmet, CORS, Express Rate Limit
+- **Database Driver**: `pg` (node-postgres Pool)
 - **Database**: PostgreSQL (`pockettrack_db`)
 
 ---
@@ -115,48 +115,49 @@ PocketTrack is a production-ready, full-stack personal finance and expense track
 ExpenseTracker_Mobile_App/
 │
 ├── backend/
-│   ├── manage.py
-│   ├── requirements.txt
+│   ├── package.json
+│   ├── Procfile
+│   ├── build.sh
 │   ├── .env
-│   ├── .env.example
 │   ├── .gitignore
-│   ├── config/
-│   │   ├── __init__.py
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   ├── wsgi.py
-│   │   └── asgi.py
-│   └── apps/
-│       ├── accounts/
-│       │   ├── models.py
-│       │   ├── serializers.py
-│       │   ├── views.py
-│       │   ├── urls.py
-│       │   ├── admin.py
-│       │   ├── tests.py
-│       │   └── management/commands/
-│       │       ├── seed_data.py
-│       │       └── create_admin.py
-│       ├── transactions/
-│       │   ├── models.py
-│       │   ├── serializers.py
-│       │   ├── views.py
-│       │   ├── urls.py
-│       │   ├── admin.py
-│       │   └── tests.py
-│       ├── budgets/
-│       │   ├── models.py
-│       │   ├── serializers.py
-│       │   ├── views.py
-│       │   ├── urls.py
-│       │   ├── admin.py
-│       │   └── tests.py
-│       └── dashboard/
-│           ├── serializers.py
-│           ├── views.py
-│           ├── urls.py
-│           ├── admin.py
-│           └── tests.py
+│   ├── src/
+│   │   ├── server.js
+│   │   ├── config/
+│   │   │   ├── db.js
+│   │   │   ├── migrate.js
+│   │   │   └── seed.js
+│   │   ├── models/
+│   │   │   ├── userModel.js
+│   │   │   ├── transactionModel.js
+│   │   │   └── budgetModel.js
+│   │   ├── views/
+│   │   │   ├── userView.js
+│   │   │   ├── transactionView.js
+│   │   │   └── budgetView.js
+│   │   ├── controllers/
+│   │   │   ├── authController.js
+│   │   │   ├── transactionController.js
+│   │   │   ├── budgetController.js
+│   │   │   └── dashboardController.js
+│   │   ├── routes/
+│   │   │   ├── index.js
+│   │   │   ├── authRoutes.js
+│   │   │   ├── transactionRoutes.js
+│   │   │   ├── budgetRoutes.js
+│   │   │   └── dashboardRoutes.js
+│   │   ├── middlewares/
+│   │   │   ├── authMiddleware.js
+│   │   │   ├── errorMiddleware.js
+│   │   │   └── paginationMiddleware.js
+│   │   └── utils/
+│   │       └── passwordUtils.js
+│   └── tests/
+│       ├── runAllTests.js
+│       ├── utils.test.js
+│       ├── views.test.js
+│       ├── middlewares.test.js
+│       ├── models.test.js
+│       └── api.test.js
 │
 ├── frontend/
 │   ├── package.json
@@ -263,50 +264,33 @@ Before running the application, make sure you have installed:
    ```powershell
    cd backend
    ```
-2. Activate the virtual environment:
-   ```powershell
-   # Windows PowerShell
-   .\venv\Scripts\Activate.ps1
-   # Or Command Prompt
-   venv\Scripts\activate.bat
-   # Linux / macOS
-   source venv/bin/activate
-   ```
-3. Verify dependencies are installed:
+2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   npm install
    ```
-4. Configure your `.env` file (copy from `.env.example` if needed):
+3. Configure your `.env` file (same credentials as root `.env`):
    ```ini
-   SECRET_KEY=django-insecure-pockettrack-secret-key-2026-production-grade
-   DEBUG=True
-   DB_NAME=pockettrack_db
-   DB_USER=postgres
-   DB_PASSWORD=your_postgres_password
-   DB_HOST=localhost
-   DB_PORT=5432
-   ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2,*
+   DATABASE_URL=postgresql://user:password@host:port/pockettrack_db
+   SECRET_KEY=your_secret_key
+   PORT=8000
    ```
-5. Apply database migrations:
+4. Run database migrations:
    ```bash
-   python manage.py makemigrations
-   python manage.py migrate
+   npm run migrate
    ```
-6. (Optional) Create an admin superuser:
+5. (Optional) Seed admin and demo users:
    ```bash
-   python manage.py create_admin
-   # Creates: admin@pockettrack.com / Admin@123456
+   npm run seed
    ```
-7. (Optional) Populate demo financial data for evaluation:
+6. Start the Express development server:
    ```bash
-   python manage.py seed_data
-   # Creates: demo@pockettrack.com / PocketTrack@2026
+   npm run dev
    ```
-8. Start the Django development server:
+   Or production:
    ```bash
-   python manage.py runserver 0.0.0.0:8000
+   npm start
    ```
-   Backend will be accessible at: `http://127.0.0.1:8000/` and Django Admin at `http://127.0.0.1:8000/admin/`.
+   Backend will be accessible at: `http://127.0.0.1:8000/api`.
 
 ---
 
@@ -316,7 +300,7 @@ Before running the application, make sure you have installed:
    ```powershell
    cd frontend
    ```
-2. Install dependencies (already installed, or re-run):
+2. Install dependencies:
    ```bash
    npm install --legacy-peer-deps
    ```
@@ -336,17 +320,18 @@ Before running the application, make sure you have installed:
 
 ## 4. Running Backend Automated Tests
 
-Run the full Django test suite (covering user registration, login, JWT auth, token refresh, profile updates, transactions CRUD, user data isolation, budget calculations, dashboard metrics, and reports):
+Run the full automated test suite covering Utils, Views, Middlewares, Models, and API Endpoints:
 
 ```powershell
 cd backend
-.\venv\Scripts\python.exe manage.py test
+npm test
 ```
 
 Expected output:
 ```
-Ran 21 tests in 2.2s
-OK
+====================================
+All Test Suites Passed Successfully!
+====================================
 ```
 
 ---
