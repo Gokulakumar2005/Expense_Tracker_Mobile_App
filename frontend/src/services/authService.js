@@ -11,14 +11,6 @@ export const authService = {
       confirm_password: confirmPassword,
     });
 
-    const { tokens, user } = response.data;
-    if (tokens) {
-      await AsyncStorage.multiSet([
-        [ACCESS_TOKEN_KEY, tokens.access],
-        [REFRESH_TOKEN_KEY, tokens.refresh],
-        [USER_KEY, JSON.stringify(user)],
-      ]);
-    }
     return response.data;
   },
 

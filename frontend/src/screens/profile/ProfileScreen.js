@@ -3,12 +3,13 @@ import {
   View,
   Text,
   ScrollView,
-  SafeAreaView,
   Alert,
   StatusBar,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
@@ -30,6 +31,7 @@ export const ProfileScreen = () => {
   const dispatch = useAppDispatch();
   const { user, isActionLoading, error } = useAppSelector((state) => state.auth);
 
+  const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(user?.first_name || '');
   const [lastName, setLastName] = useState(user?.last_name || '');
   const [formErrors, setFormErrors] = useState({});
@@ -45,6 +47,22 @@ export const ProfileScreen = () => {
     }
   }, [user]);
 
+  const handleStartEdit = () => {
+    dispatch(clearAuthError());
+    setFirstName(user?.first_name || '');
+    setLastName(user?.last_name || '');
+    setFormErrors({});
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    dispatch(clearAuthError());
+    setFirstName(user?.first_name || '');
+    setLastName(user?.last_name || '');
+    setFormErrors({});
+    setIsEditing(false);
+  };
+
   const handleUpdate = async () => {
     dispatch(clearAuthError());
     const validation = validateProfile({ firstName, lastName });
@@ -59,6 +77,7 @@ export const ProfileScreen = () => {
     );
 
     if (!res.error) {
+      setIsEditing(false);
       showNotice({
         title: 'Success',
         message: 'Profile updated successfully!',
@@ -69,7 +88,7 @@ export const ProfileScreen = () => {
   const handleLogout = () => {
     confirmDialog({
       title: 'Log Out',
-      message: 'Are you sure you want to log out of PocketTrack?',
+      message: 'Are you sure you want to log out of Expense Tracker?',
       confirmText: 'Log Out',
       isDestructive: true,
       onConfirm: () => {
@@ -78,16 +97,15 @@ export const ProfileScreen = () => {
     });
   };
 
-  const initials = `${firstName?.[0] || 'U'}${lastName?.[0] || ''}`.toUpperCase();
+  const initials = `${user?.first_name?.[0] || 'U'}${user?.last_name?.[0] || ''}`.toUpperCase();
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50" style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Header title="My Profile" subtitle="Account settings & preferences" />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
         style={{ flex: 1 }}
       >
         <ScrollView
@@ -101,9 +119,7 @@ export const ProfileScreen = () => {
             />
           )}
 
-          {/* User Hero Avatar Card */}
           <View
-            className="bg-white rounded-3xl p-6 items-center border border-slate-100 shadow-sm mb-5"
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: 24,
@@ -120,7 +136,6 @@ export const ProfileScreen = () => {
             }}
           >
             <View
-              className="w-20 h-20 rounded-full bg-blue-600 items-center justify-center mb-3 shadow-md shadow-blue-500/30"
               style={{
                 width: 80,
                 height: 80,
@@ -136,21 +151,20 @@ export const ProfileScreen = () => {
                 elevation: 4,
               }}
             >
-              <Text className="text-2xl font-black text-white" style={{ fontSize: 24, fontWeight: '900', color: '#FFFFFF' }}>
+              <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFFFFF' }}>
                 {initials}
               </Text>
             </View>
 
-            <Text className="text-xl font-bold text-slate-900 text-center" style={{ fontSize: 20, fontWeight: '700', color: '#0F172A', textAlign: 'center' }}>
-              {firstName} {lastName}
+            <Text style={{ fontSize: 20, fontWeight: '700', color: '#0F172A', textAlign: 'center' }}>
+              {user?.first_name || ''} {user?.last_name || ''}
             </Text>
-            <Text className="text-sm text-slate-500 text-center mt-0.5" style={{ fontSize: 14, color: '#64748B', textAlign: 'center', marginTop: 2 }}>
+            <Text style={{ fontSize: 14, color: '#64748B', textAlign: 'center', marginTop: 2 }}>
               {user?.email}
             </Text>
 
             {user?.created_at && (
               <View
-                className="flex-row items-center mt-3 bg-slate-100 px-3 py-1 rounded-full"
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -162,16 +176,14 @@ export const ProfileScreen = () => {
                 }}
               >
                 <Ionicons name="calendar-outline" size={13} color={COLORS.textSecondary} />
-                <Text className="text-xs text-slate-600 ml-1.5 font-medium" style={{ fontSize: 12, color: '#475569', marginLeft: 6, fontWeight: '500' }}>
+                <Text style={{ fontSize: 12, color: '#475569', marginLeft: 6, fontWeight: '500' }}>
                   Member since {formatDate(user.created_at)}
                 </Text>
               </View>
             )}
           </View>
 
-          {/* Edit Profile Form */}
           <View
-            className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm mb-5"
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: 24,
@@ -186,62 +198,172 @@ export const ProfileScreen = () => {
               elevation: 2,
             }}
           >
-            <Text
-              className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider text-xs"
-              style={{ fontSize: 12, fontWeight: '700', color: '#0F172A', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 1 }}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 16,
+              }}
             >
-              Edit Personal Info
-            </Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: '700',
+                  color: '#0F172A',
+                  textTransform: 'uppercase',
+                  letterSpacing: 1,
+                }}
+              >
+                Personal Details
+              </Text>
+              {!isEditing && (
+                <TouchableOpacity
+                  onPress={handleStartEdit}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: '#EFF6FF',
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 9999,
+                  }}
+                >
+                  <Ionicons name="pencil" size={13} color="#2563EB" />
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '700',
+                      color: '#2563EB',
+                      marginLeft: 4,
+                    }}
+                  >
+                    Edit
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-            <Input
-              label="First Name"
-              placeholder="First Name"
-              value={firstName}
-              onChangeText={(text) => {
-                setFirstName(text);
-                if (formErrors.firstName) setFormErrors({ ...formErrors, firstName: null });
-              }}
-              error={formErrors.firstName}
-              leftIcon={
-                <Ionicons name="person-outline" size={18} color={COLORS.textSecondary} />
-              }
-            />
+            {!isEditing ? (
+              <View style={{ gap: 12 }}>
+                <View
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    padding: 14,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0',
+                  }}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748B', textTransform: 'uppercase' }}>
+                    First Name
+                  </Text>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#0F172A', marginTop: 4 }}>
+                    {user?.first_name || 'Not set'}
+                  </Text>
+                </View>
 
-            <Input
-              label="Last Name"
-              placeholder="Last Name"
-              value={lastName}
-              onChangeText={(text) => {
-                setLastName(text);
-                if (formErrors.lastName) setFormErrors({ ...formErrors, lastName: null });
-              }}
-              error={formErrors.lastName}
-              leftIcon={
-                <Ionicons name="person-outline" size={18} color={COLORS.textSecondary} />
-              }
-            />
+                <View
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    padding: 14,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0',
+                  }}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748B', textTransform: 'uppercase' }}>
+                    Last Name
+                  </Text>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#0F172A', marginTop: 4 }}>
+                    {user?.last_name || 'Not set'}
+                  </Text>
+                </View>
 
-            <Input
-              label="Email Address (Read-only)"
-              value={user?.email || ''}
-              editable={false}
-              leftIcon={
-                <Ionicons name="mail-outline" size={18} color={COLORS.textMuted} />
-              }
-            />
+                <View
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    padding: 14,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0',
+                  }}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748B', textTransform: 'uppercase' }}>
+                    Email Address
+                  </Text>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#0F172A', marginTop: 4 }}>
+                    {user?.email || 'Not set'}
+                  </Text>
+                </View>
 
-            <Button
-              title="Update Profile"
-              onPress={handleUpdate}
-              isLoading={isActionLoading}
-              className="mt-2"
-              style={{ marginTop: 8 }}
-            />
+                <Button
+                  title="Update Profile Details"
+                  onPress={handleStartEdit}
+                  icon={<Ionicons name="create-outline" size={18} color="#FFFFFF" />}
+                  style={{ marginTop: 6 }}
+                />
+              </View>
+            ) : (
+              <View>
+                <Input
+                  label="First Name"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChangeText={(text) => {
+                    setFirstName(text);
+                    if (formErrors.firstName) setFormErrors({ ...formErrors, firstName: null });
+                  }}
+                  error={formErrors.firstName}
+                  leftIcon={
+                    <Ionicons name="person-outline" size={18} color={COLORS.textSecondary} />
+                  }
+                />
+
+                <Input
+                  label="Last Name"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChangeText={(text) => {
+                    setLastName(text);
+                    if (formErrors.lastName) setFormErrors({ ...formErrors, lastName: null });
+                  }}
+                  error={formErrors.lastName}
+                  leftIcon={
+                    <Ionicons name="person-outline" size={18} color={COLORS.textSecondary} />
+                  }
+                />
+
+                <Input
+                  label="Email Address (Account ID)"
+                  value={user?.email || ''}
+                  editable={false}
+                  leftIcon={
+                    <Ionicons name="mail-outline" size={18} color={COLORS.textMuted} />
+                  }
+                />
+
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+                  <View style={{ flex: 1 }}>
+                    <Button
+                      title="Cancel"
+                      onPress={handleCancelEdit}
+                      variant="secondary"
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Button
+                      title="Submit"
+                      onPress={handleUpdate}
+                      isLoading={isActionLoading}
+                    />
+                  </View>
+                </View>
+              </View>
+            )}
           </View>
 
-          {/* Security & System Info */}
           <View
-            className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm mb-5"
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: 24,
@@ -257,14 +379,19 @@ export const ProfileScreen = () => {
             }}
           >
             <Text
-              className="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider text-xs"
-              style={{ fontSize: 12, fontWeight: '700', color: '#0F172A', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1 }}
+              style={{
+                fontSize: 12,
+                fontWeight: '700',
+                color: '#0F172A',
+                marginBottom: 12,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+              }}
             >
               App & Security
             </Text>
 
             <View
-              className="flex-row items-center justify-between py-2.5 border-b border-slate-100"
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -274,19 +401,18 @@ export const ProfileScreen = () => {
                 borderBottomColor: '#F1F5F9',
               }}
             >
-              <View className="flex-row items-center" style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons name="shield-checkmark-outline" size={18} color={COLORS.income} />
-                <Text className="text-sm text-slate-700 ml-2.5 font-medium" style={{ fontSize: 14, color: '#334155', marginLeft: 10, fontWeight: '500' }}>
+                <Text style={{ fontSize: 14, color: '#334155', marginLeft: 10, fontWeight: '500' }}>
                   Authentication
                 </Text>
               </View>
-              <Text className="text-xs font-semibold text-slate-500" style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>
                 JWT Protected
               </Text>
             </View>
 
             <View
-              className="flex-row items-center justify-between py-2.5 border-b border-slate-100"
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -296,19 +422,18 @@ export const ProfileScreen = () => {
                 borderBottomColor: '#F1F5F9',
               }}
             >
-              <View className="flex-row items-center" style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons name="server-outline" size={18} color={COLORS.primary} />
-                <Text className="text-sm text-slate-700 ml-2.5 font-medium" style={{ fontSize: 14, color: '#334155', marginLeft: 10, fontWeight: '500' }}>
+                <Text style={{ fontSize: 14, color: '#334155', marginLeft: 10, fontWeight: '500' }}>
                   Database
                 </Text>
               </View>
-              <Text className="text-xs font-semibold text-slate-500" style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>
                 PostgreSQL
               </Text>
             </View>
 
             <View
-              className="flex-row items-center justify-between py-2.5"
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -316,19 +441,18 @@ export const ProfileScreen = () => {
                 paddingVertical: 10,
               }}
             >
-              <View className="flex-row items-center" style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons name="phone-portrait-outline" size={18} color={COLORS.textSecondary} />
-                <Text className="text-sm text-slate-700 ml-2.5 font-medium" style={{ fontSize: 14, color: '#334155', marginLeft: 10, fontWeight: '500' }}>
+                <Text style={{ fontSize: 14, color: '#334155', marginLeft: 10, fontWeight: '500' }}>
                   Version
                 </Text>
               </View>
-              <Text className="text-xs font-semibold text-slate-500" style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#64748B' }}>
                 1.0.0
               </Text>
             </View>
           </View>
 
-          {/* Logout Button */}
           <Button
             title="Log Out"
             onPress={handleLogout}

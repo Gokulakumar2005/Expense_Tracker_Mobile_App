@@ -44,7 +44,7 @@ export const SplashScreen = () => {
         className="text-3xl font-extrabold text-white tracking-wider mb-2"
         style={{ fontSize: 30, fontWeight: '800', color: '#FFFFFF', letterSpacing: 1, marginBottom: 8 }}
       >
-        PocketTrack
+        Expense Tracker
       </Text>
       <Text
         className="text-base text-blue-100 font-medium text-center mb-10"

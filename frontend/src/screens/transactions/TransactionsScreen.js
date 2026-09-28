@@ -5,10 +5,10 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
@@ -40,17 +40,17 @@ export const TransactionsScreen = ({ navigation }) => {
   const [showSortModal, setShowSortModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadData = useCallback(() => {
-    dispatch(fetchTransactions(filters));
-  }, [dispatch, filters]);
+  const loadData = useCallback(async () => {
+    await dispatch(fetchTransactions());
+  }, [dispatch]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, filters]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await dispatch(fetchTransactions(filters));
+    await loadData();
     setRefreshing(false);
   };
 
@@ -59,11 +59,11 @@ export const TransactionsScreen = ({ navigation }) => {
   };
 
   const handleTypeSelect = (type) => {
-    dispatch(setFilters({ transaction_type: type === filters.transaction_type ? '' : type }));
+    dispatch(setFilters({ transaction_type: type, category: '' }));
   };
 
   const handleCategorySelect = (cat) => {
-    dispatch(setFilters({ category: cat === filters.category ? '' : cat }));
+    dispatch(setFilters({ category: cat }));
   };
 
   const handleSortSelect = (sortId) => {
@@ -71,16 +71,24 @@ export const TransactionsScreen = ({ navigation }) => {
     setShowSortModal(false);
   };
 
-  const allCategories = ['All', ...new Set([
-    ...EXPENSE_CATEGORIES.map((c) => c.name),
-    ...INCOME_CATEGORIES.map((c) => c.name),
-  ])];
+  const allCategories = [
+    'All',
+    ...(filters.transaction_type === 'INCOME'
+      ? INCOME_CATEGORIES.map((c) => c.name)
+      : filters.transaction_type === 'EXPENSE'
+      ? EXPENSE_CATEGORIES.map((c) => c.name)
+      : [
+          ...new Set([
+            ...EXPENSE_CATEGORIES.map((c) => c.name),
+            ...INCOME_CATEGORIES.map((c) => c.name),
+          ]),
+        ]),
+  ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }} className="flex-1 bg-slate-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Top Search & Filter Bar */}
       <View
         style={{
           backgroundColor: '#FFFFFF',
@@ -90,10 +98,8 @@ export const TransactionsScreen = ({ navigation }) => {
           borderBottomWidth: 1,
           borderBottomColor: '#F1F5F9',
         }}
-        className="bg-white px-5 pt-3 pb-3 border-b border-slate-100 shadow-sm"
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          {/* Search Box */}
           <View
             style={{
               flex: 1,
@@ -128,7 +134,6 @@ export const TransactionsScreen = ({ navigation }) => {
             ) : null}
           </View>
 
-          {/* Sort Button */}
           <TouchableOpacity
             onPress={() => setShowSortModal(true)}
             style={{
@@ -145,7 +150,6 @@ export const TransactionsScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Type Filter Pills (All, Income, Expense) */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 8 }}>
           <TouchableOpacity
             onPress={() => handleTypeSelect('')}
@@ -230,7 +234,6 @@ export const TransactionsScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Category Horizontal Filter Pills */}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -266,7 +269,6 @@ export const TransactionsScreen = ({ navigation }) => {
         />
       </View>
 
-      {/* Main Transactions List */}
       <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 14 }}>
         {error && (
           <ErrorMessage
@@ -321,7 +323,6 @@ export const TransactionsScreen = ({ navigation }) => {
         )}
       </View>
 
-      {/* Floating Action Button */}
       <TouchableOpacity
         onPress={() => navigation.navigate('AddTransaction')}
         activeOpacity={0.8}
@@ -346,7 +347,6 @@ export const TransactionsScreen = ({ navigation }) => {
         <Ionicons name="add" size={32} color={COLORS.white} />
       </TouchableOpacity>
 
-      {/* Sort Options Modal */}
       <Modal
         visible={showSortModal}
         transparent

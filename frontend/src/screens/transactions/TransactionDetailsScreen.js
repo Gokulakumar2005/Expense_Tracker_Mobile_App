@@ -3,10 +3,9 @@ import {
   View,
   Text,
   ScrollView,
-  SafeAreaView,
-  Alert,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
@@ -94,7 +93,6 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}
       >
-        {/* Hero Amount Card */}
         <View
           style={{
             backgroundColor: '#FFFFFF',
@@ -164,7 +162,6 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
           </View>
         </View>
 
-        {/* Detailed Breakdown Card */}
         <View
           style={{
             backgroundColor: '#FFFFFF',
@@ -183,7 +180,6 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
             Transaction Information
           </Text>
 
-          {/* Category */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="pricetag-outline" size={18} color={COLORS.textSecondary} />
@@ -192,7 +188,6 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
             <Text style={{ fontSize: 14, fontWeight: '700', color: '#0F172A' }}>{tx.category}</Text>
           </View>
 
-          {/* Date */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="calendar-outline" size={18} color={COLORS.textSecondary} />
@@ -203,7 +198,6 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
             </Text>
           </View>
 
-          {/* Created Date */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="time-outline" size={18} color={COLORS.textSecondary} />
@@ -214,7 +208,6 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
             </Text>
           </View>
 
-          {/* Description / Note */}
           <View style={{ paddingVertical: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
               <Ionicons name="reader-outline" size={18} color={COLORS.textSecondary} />
@@ -226,7 +219,6 @@ export const TransactionDetailsScreen = ({ navigation, route }) => {
           </View>
         </View>
 
-        {/* Action Buttons */}
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <Button
             title="Edit Transaction"

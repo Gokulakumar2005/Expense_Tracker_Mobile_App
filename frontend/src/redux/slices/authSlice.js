@@ -90,7 +90,7 @@ const initialState = {
   user: null,
   tokens: null,
   isAuthenticated: false,
-  isLoading: true, // initial check loading
+  isLoading: true,
   isActionLoading: false,
   error: null,
 };
@@ -139,11 +139,9 @@ const authSlice = createSlice({
         state.isActionLoading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
         state.isActionLoading = false;
-        state.isAuthenticated = true;
-        state.tokens = action.payload.tokens;
-        state.user = action.payload.user;
+        state.isAuthenticated = false;
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {

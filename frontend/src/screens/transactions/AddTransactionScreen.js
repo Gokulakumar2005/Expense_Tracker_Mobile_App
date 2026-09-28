@@ -6,9 +6,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
@@ -129,7 +129,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
             />
           )}
 
-          {/* Transaction Type Segmented Toggle */}
           <View
             style={{
               flexDirection: 'row',
@@ -206,7 +205,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Form Fields Card */}
           <View
             style={{
               backgroundColor: '#FFFFFF',
@@ -221,7 +219,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
               marginBottom: 20,
             }}
           >
-            {/* Title Input */}
             <Input
               label="Transaction Title *"
               placeholder="e.g. Grocery Store, Client Payment"
@@ -236,7 +233,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
               }
             />
 
-            {/* Amount Input */}
             <Input
               label="Amount (₹) *"
               placeholder="0.00"
@@ -252,7 +248,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
               }
             />
 
-            {/* Date Input */}
             <Input
               label="Date (YYYY-MM-DD) *"
               placeholder="YYYY-MM-DD"
@@ -268,7 +263,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
               }
             />
 
-            {/* Category Selection Grid */}
             <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8, marginLeft: 2 }}>
               Select Category *
             </Text>
@@ -317,7 +311,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
               <Text style={{ fontSize: 12, color: '#DC2626', marginBottom: 12 }}>{formErrors.category}</Text>
             )}
 
-            {/* Description (Optional) */}
             <Input
               label="Note / Description (Optional)"
               placeholder="Add additional details about this transaction..."
@@ -327,7 +320,6 @@ export const AddTransactionScreen = ({ navigation, route }) => {
               numberOfLines={3}
             />
 
-            {/* Submit Button */}
             <Button
               title={isEditing ? 'Update Transaction' : 'Save Transaction'}
               onPress={handleSubmit}

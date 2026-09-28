@@ -5,9 +5,9 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchReports } from '../../redux/slices/dashboardSlice';
@@ -25,7 +25,7 @@ export const ReportsScreen = () => {
     (state) => state.dashboard
   );
 
-  const [period, setPeriod] = useState('current_month'); // 'current_month' | 'previous_month'
+  const [period, setPeriod] = useState('current_month');
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(() => {
@@ -59,7 +59,6 @@ export const ReportsScreen = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Screen Header & Period Toggle */}
       <View
         style={{
           backgroundColor: '#FFFFFF',
@@ -77,7 +76,6 @@ export const ReportsScreen = () => {
           </Text>
         </View>
 
-        {/* Period Selector Tabs */}
         <View style={{ flexDirection: 'row', backgroundColor: '#F1F5F9', padding: 4, borderRadius: 12 }}>
           <TouchableOpacity
             onPress={() => setPeriod('current_month')}
@@ -153,7 +151,6 @@ export const ReportsScreen = () => {
           <Loading message="Generating financial reports..." fullScreen={false} />
         ) : (
           <>
-            {/* Period Indicator */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: '#334155' }}>
                 Period: {reports?.period_label || 'Selected Period'}
@@ -165,7 +162,6 @@ export const ReportsScreen = () => {
               </View>
             </View>
 
-            {/* Income vs Expense Summary Cards */}
             <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
               <Card style={{ flex: 1, padding: 14, backgroundColor: '#F0FDF4', borderColor: '#DCFCE7' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -188,7 +184,6 @@ export const ReportsScreen = () => {
               </Card>
             </View>
 
-            {/* Net Savings Card */}
             <Card style={{ padding: 16, backgroundColor: '#FFFFFF', marginBottom: 16 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View>
@@ -205,7 +200,6 @@ export const ReportsScreen = () => {
                   </Text>
                 </View>
 
-                {/* Visual Ratio Bar */}
                 <View style={{ width: '48%' }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                     <Text style={{ fontSize: 11, color: '#94A3B8' }}>Ratio</Text>
@@ -215,7 +209,7 @@ export const ReportsScreen = () => {
                         : '0%'}
                     </Text>
                   </View>
-                  <View style={{ height: 8, width: '100%', backgroundColor: '#DCFCE7', borderRadius: 9999, overflow: 'hidden', flexDirection: 'row' }}>
+                  <View style={{ height: 8, width: '100%', backgroundColor: '#DCFCE7', borderRadius: 9999, overflow: 'hidden' }}>
                     <View
                       style={{
                         height: '100%',
@@ -232,7 +226,6 @@ export const ReportsScreen = () => {
               </View>
             </Card>
 
-            {/* Monthly Trend 6-Month Comparison */}
             <View
               style={{
                 backgroundColor: '#FFFFFF',
@@ -268,7 +261,6 @@ export const ReportsScreen = () => {
                 </View>
               </View>
 
-              {/* Responsive Bar Chart Rendering */}
               <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 150, paddingTop: 16, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
                 {monthlyTrends.map((trend, idx) => {
                   const incomeHeight = maxTrendValue > 0 ? (trend.income / maxTrendValue) * 105 : 0;
@@ -277,7 +269,6 @@ export const ReportsScreen = () => {
                   return (
                     <View key={idx} style={{ alignItems: 'center', flex: 1 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', width: '100%', gap: 4, height: 110 }}>
-                        {/* Income Bar */}
                         <View
                           style={{
                             width: 12,
@@ -287,7 +278,6 @@ export const ReportsScreen = () => {
                             height: Math.max(4, incomeHeight),
                           }}
                         />
-                        {/* Expense Bar */}
                         <View
                           style={{
                             width: 12,
@@ -307,7 +297,6 @@ export const ReportsScreen = () => {
               </View>
             </View>
 
-            {/* Category-Wise Spending Breakdown */}
             <View
               style={{
                 backgroundColor: '#FFFFFF',
@@ -374,7 +363,6 @@ export const ReportsScreen = () => {
                         </View>
                       </View>
 
-                      {/* Percentage progress bar */}
                       <View style={{ width: '100%', backgroundColor: '#F1F5F9', height: 8, borderRadius: 9999, overflow: 'hidden' }}>
                         <View
                           style={{
@@ -397,7 +385,6 @@ export const ReportsScreen = () => {
               )}
             </View>
 
-            {/* Budget vs Actual Performance */}
             {budgetUsage.length > 0 && (
               <View
                 style={{

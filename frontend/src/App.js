@@ -14,7 +14,7 @@ NativeWindStyleSheet.setOutput({
 export default function App() {
   const content = (
     <>
-      <StatusBar style="dark" backgroundColor="#FFFFFF" />
+      <StatusBar style="dark" backgroundColor="#FFFFFF" translucent={false} />
       <RootNavigator />
     </>
   );

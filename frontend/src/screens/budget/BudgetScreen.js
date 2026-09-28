@@ -5,13 +5,13 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   Modal,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
@@ -42,21 +42,23 @@ export const BudgetScreen = () => {
     (state) => state.budgets
   );
 
-  const today = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const currentDate = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [refreshing, setRefreshing] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
-  const [formCategory, setFormCategory] = useState('Food');
+  const [formCategory, setFormCategory] = useState(EXPENSE_CATEGORIES[0]?.name || 'Food');
   const [formAmount, setFormAmount] = useState('');
   const [formErrors, setFormErrors] = useState({});
 
-  const loadData = useCallback(() => {
+  const loadData = useCallback(async () => {
     const params = { month: selectedMonth, year: selectedYear };
-    dispatch(fetchBudgets(params));
-    dispatch(fetchBudgetSummary(params));
+    await Promise.all([
+      dispatch(fetchBudgets(params)),
+      dispatch(fetchBudgetSummary(params)),
+    ]);
   }, [dispatch, selectedMonth, selectedYear]);
 
   useEffect(() => {
@@ -65,9 +67,7 @@ export const BudgetScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    const params = { month: selectedMonth, year: selectedYear };
-    await dispatch(fetchBudgets(params));
-    await dispatch(fetchBudgetSummary(params));
+    await loadData();
     setRefreshing(false);
   };
 
@@ -92,7 +92,7 @@ export const BudgetScreen = () => {
   const openCreateModal = () => {
     dispatch(clearBudgetError());
     setEditingBudget(null);
-    setFormCategory('Food');
+    setFormCategory(EXPENSE_CATEGORIES[0]?.name || 'Food');
     setFormAmount('');
     setFormErrors({});
     setModalVisible(true);
@@ -110,23 +110,22 @@ export const BudgetScreen = () => {
   const handleDeleteBudget = (budget) => {
     confirmDialog({
       title: 'Delete Budget',
-      message: `Are you sure you want to remove the ${budget.category} budget for ${getMonthName(
-        budget.month
-      )} ${budget.year}?`,
+      message: `Are you sure you want to delete the budget for ${budget.category}?`,
       confirmText: 'Delete',
       isDestructive: true,
       onConfirm: async () => {
-        const res = await dispatch(deleteBudget(budget.id));
-        if (!res.error) {
-          const params = { month: selectedMonth, year: selectedYear };
-          dispatch(fetchBudgetSummary(params));
-          dispatch(fetchDashboard());
-        }
+        await dispatch(deleteBudget(budget.id));
+        const params = { month: selectedMonth, year: selectedYear };
+        dispatch(fetchBudgets(params));
+        dispatch(fetchBudgetSummary(params));
+        dispatch(fetchDashboard());
       },
     });
   };
 
   const handleSaveBudget = async () => {
+    dispatch(clearBudgetError());
+
     const validation = validateBudget({
       category: formCategory,
       amount: formAmount,
@@ -175,7 +174,6 @@ export const BudgetScreen = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Top Header & Month Selector */}
       <View
         style={{
           backgroundColor: '#FFFFFF',
@@ -200,7 +198,6 @@ export const BudgetScreen = () => {
           />
         </View>
 
-        {/* Month Navigation */}
         <View
           style={{
             flexDirection: 'row',
@@ -272,7 +269,6 @@ export const BudgetScreen = () => {
           />
         )}
 
-        {/* Overall Summary Card */}
         <View
           style={{
             backgroundColor: '#FFFFFF',
@@ -300,7 +296,6 @@ export const BudgetScreen = () => {
             {formatCurrency(totalBudget)}
           </Text>
 
-          {/* Progress Bar */}
           <View style={{ width: '100%', backgroundColor: '#F1F5F9', height: 10, borderRadius: 9999, overflow: 'hidden', marginBottom: 12 }}>
             <View
               style={{
@@ -342,7 +337,6 @@ export const BudgetScreen = () => {
             </View>
           </View>
 
-          {/* Warnings Banner if any */}
           {(exceededCount > 0 || warningCount > 0) && (
             <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F1F5F9', flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons
@@ -359,14 +353,12 @@ export const BudgetScreen = () => {
           )}
         </View>
 
-        {/* Category Budgets Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Text style={{ fontSize: 17, fontWeight: '800', color: '#0F172A' }}>
             Category Budgets ({budgets.length})
           </Text>
         </View>
 
-        {/* Budgets List */}
         {isLoading && !refreshing ? (
           <Loading message="Loading budgets..." fullScreen={false} />
         ) : budgets.length > 0 ? (
@@ -391,7 +383,6 @@ export const BudgetScreen = () => {
         )}
       </ScrollView>
 
-      {/* Create / Edit Budget Modal */}
       <Modal
         visible={modalVisible}
         transparent
@@ -416,7 +407,6 @@ export const BudgetScreen = () => {
               Budget period: {getMonthName(selectedMonth)} {selectedYear}
             </Text>
 
-            {/* Category Selection */}
             <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>
               Expense Category
             </Text>
@@ -463,7 +453,6 @@ export const BudgetScreen = () => {
               })}
             </ScrollView>
 
-            {/* Amount Input */}
             <Input
               label="Monthly Budget Amount (₹) *"
               placeholder="e.g. 5000.00"

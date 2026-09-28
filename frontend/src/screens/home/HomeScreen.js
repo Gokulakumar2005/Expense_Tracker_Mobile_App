@@ -5,9 +5,9 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchDashboard } from '../../redux/slices/dashboardSlice';
@@ -50,10 +50,9 @@ export const HomeScreen = ({ navigation }) => {
   const budgetPercentage = Number(dashboard?.budget_percentage) || 0;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }} className="flex-1 bg-slate-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
 
-      {/* Top Header */}
       <View
         style={{
           flexDirection: 'row',
@@ -66,7 +65,6 @@ export const HomeScreen = ({ navigation }) => {
           borderBottomWidth: 1,
           borderBottomColor: '#F1F5F9',
         }}
-        className="px-5 pt-3 pb-3 flex-row items-center justify-between bg-white border-b border-slate-100"
       >
         <View>
           <Text style={{ fontSize: 11, fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 0.8 }}>
@@ -108,7 +106,6 @@ export const HomeScreen = ({ navigation }) => {
           />
         }
       >
-        {/* Error message banner */}
         {error && (
           <ErrorMessage
             message={error}
@@ -116,7 +113,6 @@ export const HomeScreen = ({ navigation }) => {
           />
         )}
 
-        {/* Total Balance Hero Card */}
         <View
           style={{
             backgroundColor: '#2563EB',
@@ -129,7 +125,6 @@ export const HomeScreen = ({ navigation }) => {
             shadowRadius: 12,
             elevation: 4,
           }}
-          className="bg-blue-600 rounded-3xl p-6 mb-4 shadow-lg shadow-blue-500/30"
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <Text style={{ color: '#DBEAFE', fontSize: 13, fontWeight: '600' }}>
@@ -148,7 +143,6 @@ export const HomeScreen = ({ navigation }) => {
 
           <View style={{ height: 1, backgroundColor: 'rgba(255, 255, 255, 0.2)', marginBottom: 14 }} />
 
-          {/* Monthly Income / Expense Mini Indicators */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <View style={{ width: 34, height: 34, borderRadius: 9999, backgroundColor: 'rgba(34, 197, 94, 0.2)', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
@@ -176,9 +170,7 @@ export const HomeScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Overall Income & Expenses Two-Column Row */}
         <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
-          {/* Income Card */}
           <Card style={{ flex: 1, padding: 14, backgroundColor: '#FFFFFF' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#DCFCE7', alignItems: 'center', justifyContent: 'center' }}>
@@ -194,7 +186,6 @@ export const HomeScreen = ({ navigation }) => {
             </Text>
           </Card>
 
-          {/* Expense Card */}
           <Card style={{ flex: 1, padding: 14, backgroundColor: '#FFFFFF' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center' }}>
@@ -211,7 +202,6 @@ export const HomeScreen = ({ navigation }) => {
           </Card>
         </View>
 
-        {/* Monthly Budget Card */}
         <Card
           onPress={() => navigation.navigate('Budget')}
           style={{ marginBottom: 20, padding: 18, backgroundColor: '#FFFFFF' }}
@@ -237,7 +227,6 @@ export const HomeScreen = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Budget progress bar */}
           <View style={{ width: '100%', backgroundColor: '#F1F5F9', height: 10, borderRadius: 9999, overflow: 'hidden', marginBottom: 12 }}>
             <View
               style={{
@@ -254,7 +243,6 @@ export const HomeScreen = ({ navigation }) => {
             />
           </View>
 
-          {/* Budget metrics */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ fontSize: 11, color: '#94A3B8', fontWeight: '500' }}>Budget</Text>
@@ -284,7 +272,6 @@ export const HomeScreen = ({ navigation }) => {
           </View>
         </Card>
 
-        {/* Recent Transactions Section */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A' }}>
             Recent Transactions
