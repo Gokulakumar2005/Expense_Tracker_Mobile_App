@@ -1,17 +1,10 @@
-# dependencies
 node_modules/
-
-# Expo
 .expo/
 dist/
 web-build/
 expo-env.d.ts
-
-# Local env files
 .env
 .env*.local
-
-# Native
 .kotlin/
 *.orig.*
 *.jks
@@ -19,20 +12,12 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
-
-# Metro
 .metro-health-check*
-
-# debug
 npm-debug.*
 yarn-debug.*
 yarn-error.*
-
-# macOS / Windows
 .DS_Store
 Thumbs.db
 *.pem
-
-# generated native folders
 /ios
 /android
