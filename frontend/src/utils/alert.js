@@ -1,10 +1,5 @@
 import { Alert, Platform } from 'react-native';
 
-/**
- * Universal confirmation dialog that works seamlessly across iOS, Android, and Web.
- * On Web: uses window.confirm.
- * On Mobile: uses React Native Alert.alert with cancel/confirm buttons.
- */
 export const confirmDialog = ({
   title = 'Confirmation',
   message = '',
@@ -38,11 +33,6 @@ export const confirmDialog = ({
   }
 };
 
-/**
- * Universal notice/alert dialog that works on Web and Mobile.
- * On Web: uses window.alert, then executes callback.
- * On Mobile: uses React Native Alert.alert.
- */
 export const showNotice = ({ title = 'Notice', message = '', onOk }) => {
   if (Platform.OS === 'web') {
     const promptText = message ? `${title}\n\n${message}` : title;

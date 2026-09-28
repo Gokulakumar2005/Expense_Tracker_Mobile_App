@@ -100,7 +100,6 @@ const budgetSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetchBudgets
       .addCase(fetchBudgets.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -116,12 +115,10 @@ const budgetSlice = createSlice({
         state.error = action.payload;
       })
 
-      // fetchBudgetSummary
       .addCase(fetchBudgetSummary.fulfilled, (state, action) => {
         state.summary = action.payload;
       })
 
-      // createBudget
       .addCase(createBudget.pending, (state) => {
         state.isSubmitting = true;
         state.error = null;
@@ -135,7 +132,6 @@ const budgetSlice = createSlice({
         state.error = action.payload;
       })
 
-      // updateBudget
       .addCase(updateBudget.pending, (state) => {
         state.isSubmitting = true;
         state.error = null;
@@ -152,7 +148,6 @@ const budgetSlice = createSlice({
         state.error = action.payload;
       })
 
-      // deleteBudget
       .addCase(deleteBudget.pending, (state) => {
         state.isSubmitting = true;
         state.error = null;

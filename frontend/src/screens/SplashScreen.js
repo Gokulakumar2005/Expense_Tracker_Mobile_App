@@ -9,9 +9,7 @@ export const SplashScreen = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Check saved session on app startup
     const initAuth = async () => {
-      // Allow splash to be visible for a brief moment for smooth UX
       await new Promise((resolve) => setTimeout(resolve, 800));
       dispatch(checkStoredAuth());
     };

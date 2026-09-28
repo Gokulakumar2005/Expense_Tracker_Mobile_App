@@ -131,7 +131,6 @@ const transactionSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetchTransactions
       .addCase(fetchTransactions.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -154,7 +153,6 @@ const transactionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // fetchTransactionDetail
       .addCase(fetchTransactionDetail.pending, (state) => {
         state.isLoading = true;
       })
@@ -167,7 +165,6 @@ const transactionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // createTransaction
       .addCase(createTransaction.pending, (state) => {
         state.isSubmitting = true;
         state.error = null;
@@ -182,7 +179,6 @@ const transactionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // updateTransaction
       .addCase(updateTransaction.pending, (state) => {
         state.isSubmitting = true;
         state.error = null;
@@ -200,7 +196,6 @@ const transactionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // deleteTransaction
       .addCase(deleteTransaction.pending, (state) => {
         state.isSubmitting = true;
         state.error = null;
@@ -218,7 +213,6 @@ const transactionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // fetchCategories
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.categories = action.payload;
       });

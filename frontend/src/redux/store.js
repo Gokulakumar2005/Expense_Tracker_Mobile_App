@@ -18,7 +18,6 @@ export const store = configureStore({
     }),
 });
 
-// Configure automatic logout when token refresh fails
 setOnUnauthorizedCallback(() => {
   store.dispatch(forceLogout());
 });

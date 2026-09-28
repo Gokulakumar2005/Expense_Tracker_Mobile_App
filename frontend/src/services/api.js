@@ -6,10 +6,10 @@ export const ACCESS_TOKEN_KEY = '@pockettrack_access_token';
 export const REFRESH_TOKEN_KEY = '@pockettrack_refresh_token';
 export const USER_KEY = '@pockettrack_user';
 
-const getDefaultBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
-  }
+export const LIVE_BACKEND_URL = 'https://expense-tracker-mobile-app-backend-j1ep.onrender.com';
+export const LIVE_API_URL = `${LIVE_BACKEND_URL}/api`;
+
+export const getLocalBaseUrl = () => {
   if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.hostname) {
     return `http://${window.location.hostname}:8000/api`;
   }
@@ -17,6 +17,19 @@ const getDefaultBaseUrl = () => {
     return 'http://10.0.2.2:8000/api';
   }
   return 'http://localhost:8000/api';
+};
+
+export const getDefaultBaseUrl = () => {
+  if (process.env.EXPO_PUBLIC_USE_LIVE_API === 'true' || process.env.EXPO_PUBLIC_API_ENV === 'live') {
+    return process.env.EXPO_PUBLIC_LIVE_API_URL || LIVE_API_URL;
+  }
+  if (process.env.EXPO_PUBLIC_USE_LIVE_API === 'false' || process.env.EXPO_PUBLIC_API_ENV === 'local') {
+    return getLocalBaseUrl();
+  }
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  return getLocalBaseUrl();
 };
 
 export const BASE_AXIOS_URL = getDefaultBaseUrl();
@@ -30,6 +43,23 @@ const api = axios.create({
     Accept: 'application/json',
   },
 });
+
+export const setBaseAxiosUrl = (url) => {
+  api.defaults.baseURL = url;
+};
+
+export const getBaseAxiosUrl = () => api.defaults.baseURL;
+
+export const switchToLiveBackend = () => {
+  setBaseAxiosUrl(LIVE_API_URL);
+  return LIVE_API_URL;
+};
+
+export const switchToLocalBackend = () => {
+  const localUrl = getLocalBaseUrl();
+  setBaseAxiosUrl(localUrl);
+  return localUrl;
+};
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -95,7 +125,8 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axios.post(`${BASE_AXIOS_URL}/auth/refresh/`, {
+        const currentBaseUrl = api.defaults.baseURL || BASE_AXIOS_URL;
+        const response = await axios.post(`${currentBaseUrl}/auth/refresh/`, {
           refresh: refreshToken,
         });
 

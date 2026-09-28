@@ -71,7 +71,6 @@ export const TransactionsScreen = ({ navigation }) => {
     setShowSortModal(false);
   };
 
-  // Merge expense and income categories for filtering
   const allCategories = ['All', ...new Set([
     ...EXPENSE_CATEGORIES.map((c) => c.name),
     ...INCOME_CATEGORIES.map((c) => c.name),

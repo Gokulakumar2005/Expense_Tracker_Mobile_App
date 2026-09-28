@@ -72,7 +72,6 @@ const dashboardSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetchDashboard
       .addCase(fetchDashboard.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -86,7 +85,6 @@ const dashboardSlice = createSlice({
         state.error = action.payload;
       })
 
-      // fetchReports
       .addCase(fetchReports.pending, (state) => {
         state.isReportsLoading = true;
         state.error = null;

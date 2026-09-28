@@ -47,7 +47,6 @@ export const BudgetScreen = () => {
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [refreshing, setRefreshing] = useState(false);
 
-  // Modal State for Create / Edit
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
   const [formCategory, setFormCategory] = useState('Food');

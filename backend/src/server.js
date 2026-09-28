@@ -27,20 +27,32 @@ app.set('trust proxy', 1);
 
 const isDebug = (process.env.DEBUG || 'False').toLowerCase() === 'true';
 const corsOriginsEnv = process.env.CORS_ALLOWED_ORIGINS || '';
+
+const defaultOrigins = [
+  'http://localhost:8081',
+  'http://127.0.0.1:8081',
+  'http://192.168.1.11:8081',
+  'http://localhost:19000',
+  'http://localhost:19006',
+  'http://localhost:8080',
+  'https://expense-tracker-mobile-app-backend-j1ep.onrender.com',
+];
+
 const allowedOrigins = corsOriginsEnv
-  ? corsOriginsEnv.split(',').map((o) => o.trim()).filter(Boolean)
-  : [
-      'http://localhost:8081',
-      'http://127.0.0.1:8081',
-      'http://localhost:19000',
-      'http://localhost:19006',
-    ];
+  ? Array.from(new Set([...corsOriginsEnv.split(',').map((o) => o.trim()).filter(Boolean), ...defaultOrigins]))
+  : defaultOrigins;
 
 const corsOptions = {
   origin: isDebug || allowedOrigins.includes('*')
     ? true
     : (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (
+          !origin ||
+          allowedOrigins.includes(origin) ||
+          origin.endsWith('.onrender.com') ||
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1')
+        ) {
           callback(null, true);
         } else {
           callback(new Error(`CORS: origin '${origin}' not allowed`));
@@ -79,6 +91,8 @@ app.get('/', (req, res) => {
     message: 'PocketTrack API - Express.js Backend',
     version: '1.0.0',
     docs: '/api/',
+    environment: isDebug ? 'development' : 'production',
+    live_url: 'https://expense-tracker-mobile-app-backend-j1ep.onrender.com',
   });
 });
 

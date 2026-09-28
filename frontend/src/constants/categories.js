@@ -26,7 +26,6 @@ export const getCategoryMeta = (categoryName, type = 'EXPENSE') => {
   const match = list.find(c => c.name.toLowerCase() === (categoryName || '').toLowerCase());
   if (match) return match;
 
-  // Check both lists if not found
   const fallback = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES].find(
     c => c.name.toLowerCase() === (categoryName || '').toLowerCase()
   );
