@@ -2,9 +2,63 @@ import { query, pool } from './db.js';
 
 async function migrate() {
   try {
-    await query(`DROP TABLE IF EXISTS budgets CASCADE;`);
-    await query(`DROP TABLE IF EXISTS transactions CASCADE;`);
-    await query(`DROP TABLE IF EXISTS users CASCADE;`);
+    await query(`
+      CREATE TABLE IF NOT EXISTS accounts_user (
+        id            BIGSERIAL PRIMARY KEY,
+        password      VARCHAR(255) NOT NULL,
+        last_login    TIMESTAMPTZ,
+        is_superuser  BOOLEAN NOT NULL DEFAULT FALSE,
+        first_name    VARCHAR(150) NOT NULL,
+        last_name     VARCHAR(150) NOT NULL,
+        email         VARCHAR(255) NOT NULL UNIQUE,
+        is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+        is_staff      BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS transactions_transaction (
+        id                BIGSERIAL PRIMARY KEY,
+        title             VARCHAR(200) NOT NULL,
+        amount            NUMERIC(12, 2) NOT NULL CHECK (amount >= 0.01),
+        transaction_type  VARCHAR(10) NOT NULL CHECK (transaction_type IN ('INCOME', 'EXPENSE')),
+        category          VARCHAR(50) NOT NULL,
+        description       TEXT NOT NULL DEFAULT '',
+        transaction_date  DATE NOT NULL DEFAULT CURRENT_DATE,
+        created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        user_id           BIGINT NOT NULL REFERENCES accounts_user(id) ON DELETE CASCADE
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS budgets_budget (
+        id          BIGSERIAL PRIMARY KEY,
+        category    VARCHAR(50) NOT NULL,
+        amount      NUMERIC(12, 2) NOT NULL CHECK (amount >= 0.01),
+        month       SMALLINT NOT NULL CHECK (month >= 1 AND month <= 12),
+        year        SMALLINT NOT NULL CHECK (year >= 2000 AND year <= 2100),
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        user_id     BIGINT NOT NULL REFERENCES accounts_user(id) ON DELETE CASCADE
+      );
+    `);
+
+    await query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint
+          WHERE conname = 'unique_user_category_month_year_budget'
+        ) THEN
+          ALTER TABLE budgets_budget
+            ADD CONSTRAINT unique_user_category_month_year_budget
+            UNIQUE (user_id, category, month, year);
+        END IF;
+      END $$;
+    `);
 
     for (const [table, cols] of [
       ['accounts_user', ['created_at', 'updated_at']],
